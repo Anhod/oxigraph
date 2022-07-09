@@ -1,0 +1,21 @@
+{
+  "name": "oxigraph_tests",
+  "description": "Oxigraph JS build and tests",
+  "private": true,
+  "devDependencies": {
+    "mocha": "^9.0.0",
+    "@rdfjs/data-model": "^2.0.0",
+    "standard": "^16.0.0"
+  },
+  "scripts": {
+    "test": "standard && wasm-pack build --debug --target nodejs && mocha",
+    "build": "rm -rf pkg && wasm-pack build --release --target web --out-name web && mv pkg pkg-web && wasm-pack build --release --target nodejs --out-name node && mv pkg pkg-node && node build_package.js && rm -r pkg-web && rm -r pkg-node",
+    "release": "npm run build && npm publish ./pkg",
+    "pack": "npm run build && npm pack ./pkg"
+  },
+  "standard": {
+    "ignore": [
+      "pkg*"
+    ]
+  }
+}

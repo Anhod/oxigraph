@@ -1,0 +1,26 @@
+[package]
+name = "oxrdf"
+version = "0.1.0"
+authors = ["Tpt <thomas@pellissier-tanon.fr>"]
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+keywords = ["RDF"]
+repository = "https://github.com/oxigraph/oxigraph/tree/main/lib/oxrdf"
+homepage = "https://oxigraph.org/"
+description = """
+A library providing basic data structures related to RDF
+"""
+edition = "2021"
+
+[features]
+default = []
+rdf-star = []
+
+[dependencies]
+rand = "0.8"
+oxilangtag = "0.1"
+oxiri = "0.2"
+lasso = { version = "0.6", features = ["inline-more"] }
+
+[package.metadata.docs.rs]
+all-features = true

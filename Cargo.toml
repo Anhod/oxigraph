@@ -1,0 +1,16 @@
+[workspace]
+members = [
+    "js",
+    "lib",
+    "lib/oxrdf",
+    "lib/spargebra",
+    "lib/sparesults",
+    "python",
+    "oxrocksdb-sys",
+    "server",
+    "testsuite"
+]
+
+[profile.release]
+lto = true
+codegen-units = 1

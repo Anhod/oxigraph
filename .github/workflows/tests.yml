@@ -1,0 +1,100 @@
+name: Change tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: "0 0 * * 0"
+
+jobs:
+  fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: rustup update && rustup component add rustfmt
+      - run: cargo fmt -- --check
+
+  clippy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - run: rustup update && rustup component add clippy
+      - run: cargo clippy --all-targets --all-features
+
+  deny:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: EmbarkStudios/cargo-deny-action@v1
+
+  test_linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - run: rustup update
+      - run: cargo test --all-features
+        env:
+          RUST_BACKTRACE: 1
+
+  address_sanitizer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - run: rustup update && rustup toolchain install nightly
+      - run: cargo +nightly test --tests --target x86_64-unknown-linux-gnu --workspace --exclude pyoxigraph --exclude oxigraph_testsuite
+        env:
+          RUST_BACKTRACE: 1
+          RUSTFLAGS: -Z sanitizer=address
+
+  test_windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - run: rustup update
+      - run: Remove-Item -LiteralPath "C:\msys64\" -Force -Recurse
+      - run: cargo test --all-features
+        env:
+          RUST_BACKTRACE: 1
+
+  js:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: rustup update
+      - run: cargo install wasm-pack
+      - run: npm install
+        working-directory: ./js
+      - run: npm test
+        working-directory: ./js
+
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - run: rustup update
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
+      - run: pip install --upgrade maturin sphinx
+      - run: maturin sdist -m python/Cargo.toml
+      - run: pip install target/wheels/*.tar.gz
+      - run: python -m unittest
+        working-directory: ./python/tests
+      - run: sphinx-build -M doctest . build
+        working-directory: ./python/docs
+      - run: sphinx-build -M html . build
+        working-directory: ./python/docs
